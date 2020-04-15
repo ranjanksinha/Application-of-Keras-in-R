@@ -1,0 +1,237 @@
+#Question Number 1: Neural Networks
+
+Datann_SPI=data[c("SPI", "CE","OP","EP")] 
+Datann_AEI=data[c("AEI", "CE","OP","EP")] 
+Datann_KEI=data[c("KEI", "CE","OP","EP")] 
+
+
+library(keras)
+library(dplyr)
+library(cloudml)
+library(GGally)
+ggpairs(Datann_SPI, title = "pair plot")
+ggpairs(Datann_AEI, title = "pair plot")
+ggpairs(Datann_KEI, title = "pair plot")
+
+######################################## work on SPI ###################################################
+
+head(Datann_SPI)
+set.seed(400)
+randomobs <- sample(seq_len(nrow(Datann_SPI)), size = floor(0.3 * nrow(Datann_SPI)))
+
+# Train dataset
+train.Datann_SPI <- Datann_SPI[randomobs,]
+
+#Test dataset
+test.Datann_SPI <- Datann_SPI[-randomobs,]
+model_1_multipe <- lm(SPI ~ .,train.Datann_SPI)
+summary(model_1_multipe)
+
+pred_regression <- predict(model_1_multipe, test.Datann_SPI %>% select(-SPI),type='response')
+
+print(sqrt(mean((test.Datann_SPI$SPI - pred_regression)^2)))
+
+
+train_x <- train.Datann_SPI %>% select(-SPI) %>% scale()
+train_x_s <- scale(train_x)
+
+train_y <- train.Datann_SPI %>% select(SPI)%>% as.matrix()
+
+test_x <- test.Datann_SPI %>% select(-SPI) 
+test_x_s <- scale(test_x)
+
+test_y <- test.Datann_SPI %>% select(SPI)%>% as.matrix()
+
+library(tensorflow)
+
+model <- keras_model_sequential() 
+model %>% layer_dense(units = 4, activation = 'relu', input_shape = c(3)) %>% 
+  layer_dense(units = 16, activation = "relu") %>%
+  layer_dense(units = 1)
+
+summary(model)
+
+
+model %>% compile(loss='mse',optimizer='rmsprop',metrics='mse')
+
+history = model %>% fit(train_x_s,train_y, epochs=10,batch_size =4,validation_split = 0.2)
+
+
+#RMSE
+print((evaluate(model, test_x_s, test_y)$mean_squared_error)^0.5)
+
+
+
+preds <- predict(model, test_x_s)
+
+
+final <- data.frame(preds_nn=preds,preds_lr =pred_regression, actual=test_y)
+
+knitr::kable(head(final))
+
+
+######################################## work on AEI ###################################################
+
+
+head(Datann_AEI)
+set.seed(400)
+randomobs <- sample(seq_len(nrow(Datann_AEI)), size = floor(0.3 * nrow(Datann_AEI)))
+
+# Train dataset
+train.Datann_AEI <- Datann_AEI[randomobs,]
+
+#Test dataset
+test.Datann_AEI <- Datann_AEI[-randomobs,]
+model_1_multipe <- lm(AEI ~ .,train.Datann_AEI)
+summary(model_1_multipe)
+
+pred_regression <- predict(model_1_multipe, test.Datann_AEI %>% select(-AEI),type='response')
+
+print(sqrt(mean((test.Datann_AEI$AEI - pred_regression)^2)))
+
+
+train_x <- train.Datann_AEI %>% select(-AEI) %>% scale()
+train_x_s <- scale(train_x)
+
+train_y <- train.Datann_AEI %>% select(AEI)%>% as.matrix()
+
+test_x <- test.Datann_AEI %>% select(-AEI) 
+test_x_s <- scale(test_x)
+
+test_y <- test.Datann_AEI %>% select(AEI)%>% as.matrix()
+
+library(tensorflow)
+
+model <- keras_model_sequential() 
+model %>% layer_dense(units = 4, activation = 'relu', input_shape = c(3)) %>% 
+  layer_dense(units = 16, activation = "relu") %>%
+  layer_dense(units = 1)
+
+summary(model)
+
+
+model %>% compile(loss='mse',optimizer='rmsprop',metrics='mse')
+
+history = model %>% fit(train_x_s,train_y, epochs=10,batch_size =4,validation_split = 0.2)
+
+
+
+#RMSE
+print((evaluate(model, test_x_s, test_y)$mean_squared_error)^0.5)
+
+
+
+preds <- predict(model, test_x_s)
+
+
+final <- data.frame(preds_nn=preds,preds_lr =pred_regression, actual=test_y)
+
+knitr::kable(head(final))
+
+
+
+######################################## work on KEI ###################################################
+
+
+head(Datann_KEI)
+set.seed(400)
+randomobs <- sample(seq_len(nrow(Datann_KEI)), size = floor(0.3 * nrow(Datann_KEI)))
+
+# Train dataset
+train.Datann_KEI <- Datann_KEI[randomobs,]
+
+#Test dataset
+test.Datann_KEI <- Datann_KEI[-randomobs,]
+model_1_multipe <- lm(KEI ~ .,train.Datann_KEI)
+summary(model_1_multipe)
+
+pred_regression <- predict(model_1_multipe, test.Datann_KEI %>% select(-KEI),type='response')
+
+print(sqrt(mean((test.Datann_KEI$KEI - pred_regression)^2)))
+
+
+train_x <- train.Datann_KEI %>% select(-KEI) %>% scale()
+train_x_s <- scale(train_x)
+
+train_y <- train.Datann_KEI %>% select(KEI)%>% as.matrix()
+
+test_x <- test.Datann_KEI %>% select(-KEI) 
+test_x_s <- scale(test_x)
+
+test_y <- test.Datann_KEI %>% select(KEI)%>% as.matrix()
+
+library(tensorflow)
+
+model <- keras_model_sequential() 
+model %>% layer_dense(units = 4, activation = 'relu', input_shape = c(3)) %>% 
+  layer_dense(units = 16, activation = "relu") %>%
+  layer_dense(units = 1)
+
+summary(model)
+
+
+model %>% compile(loss='mse',optimizer='rmsprop',metrics='mse')
+
+history = model %>% fit(train_x_s,train_y, epochs=10,batch_size =4,validation_split = 0.2)
+
+
+
+#RMSE
+print((evaluate(model, test_x_s, test_y)$mean_squared_error)^0.5)
+
+
+
+preds <- predict(model, test_x_s)
+
+
+final <- data.frame(preds_nn=preds,preds_lr =pred_regression, actual=test_y)
+
+knitr::kable(head(final))
+
+# Question Number 2: Wavelet
+
+# 2.a for Saudi:
+# Case 1: SPI with CE
+
+install.packages("ggpubr")
+library("ggpubr")
+cor(data$SPI, data$CE, method = c("pearson", "kendall", "spearman"))
+cor.test(data$SPI, data$CE, method=c("pearson", "kendall", "spearman"))
+
+cor(data$SPI,data$CE,  method = "pearson", use = "complete.obs")
+
+
+library("ggpubr")
+ggscatter(data, x = "SPI", y = "CE", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Miles/(US) gallon", ylab = "Weight (1000 lbs)")
+
+# Shapiro-Wilk normality test for SPI
+shapiro.test(data$SPI) 
+# Shapiro-Wilk normality test for CE
+shapiro.test(data$CE)
+
+# SPI
+ggqqplot(data$SPI, ylab = "SPI")
+# CE
+ggqqplot(data$CE, ylab = "CE")
+
+
+res <- cor.test(data$CE, data$SPI, 
+                    method = "pearson")
+res
+
+
+# Extract the p.value
+res$p.value
+
+# Extract the correlation coefficient
+res$estimate
+
+
+res2 <- cor.test(data$CE, data$SPI,  method="kendall")
+res2
+
+res2 <-cor.test(data$CE, data$SPI,  method = "spearman")
+res2
